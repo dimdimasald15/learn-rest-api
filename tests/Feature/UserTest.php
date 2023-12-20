@@ -40,7 +40,7 @@ class UserTest extends TestCase
                 'username' => [
                     "The username field is required."
                 ],
-                'password'=>[
+                'password' => [
                     "The password field is required."
                 ],
                 'name' => [
@@ -49,7 +49,7 @@ class UserTest extends TestCase
             ],
         ]);
     }
-    
+
     public function testRegisterUsernameAlreadyExists(): void
     {
         $this->testRegisterSuccess();
@@ -68,17 +68,20 @@ class UserTest extends TestCase
         ]);
     }
 
-    public function testLoginSuccess(){
+    public function testLoginSuccess()
+    {
         $this->seed([UserSeeder::class]);
         $response = $this->post('/api/users/login', [
             'username' => "test",
             'password' => "test",
         ]);
 
-        $response->assertStatus(200)->assertJson([
-            "data" => [
-                'username' => "test",
-                'password' => "test",
+        $response->assertStatus(200)->assertJsonStructure([
+            'data' => [
+                'id',
+                'username',
+                'name',
+                'token',
             ],
         ]);
 
@@ -86,7 +89,8 @@ class UserTest extends TestCase
         self::assertNotNull($user->token);
     }
 
-    public function testLoginFailedUsernameNotFound(){
+    public function testLoginFailedUsernameNotFound()
+    {
         $response = $this->post('/api/users/login', [
             'username' => "test",
             'password' => "test",
@@ -101,7 +105,8 @@ class UserTest extends TestCase
         ]);
     }
 
-    public function testLoginFailedPasswordWrong(){
+    public function testLoginFailedPasswordWrong()
+    {
         $this->seed([UserSeeder::class]);
         $response = $this->post('/api/users/login', [
             'username' => "test",
@@ -112,6 +117,54 @@ class UserTest extends TestCase
             "errors" => [
                 'message' => [
                     "username or password wrong"
+                ],
+            ],
+        ]);
+    }
+
+    public function testGetSuccess()
+    {
+        $this->seed([UserSeeder::class]);
+    
+        $response = $this->get('/api/users/current', [
+            'Authorization' => "test",
+        ]);
+    
+        $response->assertStatus(200)->assertJson([
+            "data" => [
+                'username' => 'test',
+                'name' => 'test',
+                'token' => 'test',
+            ],
+        ])->assertJsonMissing([
+            "data" => [
+                'password' => 'test',
+            ],
+        ]);
+    }
+
+    public function testGetUnauthorized()
+    {
+        $response = $this->get('/api/users/current');
+
+        $response->assertStatus(401)->assertJson([
+            "errors" => [
+                'message' => [
+                    "unauthorized"
+                ],
+            ],
+        ]);
+    }
+    public function testGetInvalidToken()
+    {
+        $response = $this->get('/api/users/current',[
+            'Authorization'=>'salah'
+        ]);
+
+        $response->assertStatus(401)->assertJson([
+            "errors" => [
+                'message' => [
+                    "unauthorized"
                 ],
             ],
         ]);
