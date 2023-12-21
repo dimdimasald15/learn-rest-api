@@ -191,7 +191,7 @@ class ContactTest extends TestCase
         ]);
     }
 
-    public function testDeleteFailed()
+    public function testDeleteNotFound()
     {
         $this->seed([UserSeeder::class, ContactSeeder::class]);
 

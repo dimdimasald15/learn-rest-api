@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('city', 100)->nullable();
             $table->string('province', 100)->nullable();
             $table->string('country', 100)->nullable(false);
-            $table->string('postal_code', 100)->nullable();
+            $table->string('postal_code', 10)->nullable();
             $table->unsignedBigInteger('contact_id')->nullable(false);
             $table->timestamps();
 
