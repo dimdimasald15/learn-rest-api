@@ -24,16 +24,17 @@ class ContactCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'firstname'=>['required','max:100'],
-            'lastname'=>['nullable','max:100'],
-            'phone'=>['nullable','max:20'],
-            'email'=>['nullable','max:200', 'email'], 
+            'firstname' => ['required', 'max:100'],
+            'lastname' => ['nullable', 'max:100'],
+            'phone' => ['required', 'max:20'],
+            'email' => ['nullable', 'max:200', 'email'],
         ];
     }
 
-    protected function failedValidation(Validator $validator){
+    protected function failedValidation(Validator $validator)
+    {
         throw new HttpResponseException(response([
-            "errors"=> $validator->getMessageBag(),
-        ],400));
-   }
+            "errors" => $validator->getMessageBag(),
+        ], 400));
+    }
 }

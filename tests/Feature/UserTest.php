@@ -199,6 +199,7 @@ class UserTest extends TestCase
         $oldUser = User::where('username', 'test')->first();
 
         $response = $this->patch('/api/users/current', [
+            'user' => 'dimas',
             'name' => 'dimas'
         ], [
             'Authorization' => "test",

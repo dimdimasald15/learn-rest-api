@@ -33,7 +33,6 @@ class ContactController extends Controller
         $user = Auth::user();
         $contact = $this->getContact($user, $id);
 
-
         return new ContactResource($contact);
     }
 
@@ -41,7 +40,6 @@ class ContactController extends Controller
     {
         $user = Auth::user();
         $contact = $this->getContact($user, $id);
-
 
         $data = $request->validated();
         $contact->fill($data);
@@ -63,12 +61,19 @@ class ContactController extends Controller
 
     public function search(Request $request): ContactCollection
     {
+        // Mendapatkan pengguna yang sedang terautentikasi
         $user = Auth::user();
+
+        // Mendapatkan parameter halaman dan ukuran dari request, dengan default nilai 1 untuk halaman dan 10 untuk ukuran
         $page = $request->input('page', 1);
         $size = $request->input('size', 10);
 
+        // Memulai query untuk mendapatkan kontak milik pengguna yang sedang terautentikasi
         $contacts = Contact::query()->where('user_id', $user->id);
+
+        // Menambahkan filter tambahan berdasarkan input yang diterima dari request
         $contacts = $contacts->where(function (Builder $builder) use ($request) {
+            // Mencari berdasarkan nama depan atau nama belakang
             $name = $request->input('name');
             if ($name) {
                 $builder->where(function (Builder $builder) use ($name) {
@@ -77,18 +82,23 @@ class ContactController extends Controller
                 });
             }
 
+            // Mencari berdasarkan email
             $email = $request->input('email');
             if ($email) {
                 $builder->where('email', 'like', '%' . $email . '%');
             }
 
+            // Mencari berdasarkan nomor telepon
             $phone = $request->input('phone');
             if ($phone) {
                 $builder->where('phone', 'like', '%' . $phone . '%');
             }
         });
+
+        // Melakukan pagination pada hasil query
         $contacts = $contacts->paginate(perPage: $size, page: $page);
 
+        // Mengembalikan hasil pencarian dalam bentuk koleksi kontak
         return new ContactCollection($contacts);
     }
 
